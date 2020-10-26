@@ -1,0 +1,215 @@
+Para criar um novo virtualenv, você deve abrir o terminal e executar python -m venv myvenv. Deve ficar assim:
+
+command-line
+C:\Users\Name\djangogirls> python -m venv myvenv
+Onde myvenv é o nome do seu virtualenv. Você pode usar qualquer outro nome, mas sempre use minúsculas e não use espaços, acentos ou caracteres especiais. Também é uma boa ideia manter o nome curto - você irá referenciá-lo muitas vezes!
+
+Inicie o seu ambiente virtual executando:
+
+command-line
+C:\Users\Name\djangogirls> myvenv\Scripts\activate
+
+Você vai saber que tem um virtualenv funcionando quando vir que a linha de comando no seu console tem o prefixo (myvenv).
+
+Instalando o Django
+Agora que você tem seu virtualenv ativo, pode instalar o Django.
+
+Antes de fazer isto, devemos garantir que temos instalada a última versão do pip, que é o software que usamos para instalar o Django:
+
+command-line
+(myvenv) ~$ python -m pip install --upgrade pip
+
+Installing Django: Windows 8 and Windows 10
+Sua linha de comando pode congelar depois de você tentar instalar o Django. Neste caso, ao invés do comando acima, use:
+
+command-line
+C:\Users\Name\djangogirls> python -m pip install -r requirements.txt
+
+verifica versão do django
+
+python -m django --version
+
+Create project: Windows
+No Windows, rode o seguinte comando (não esqueça de adicionar o ponto . no final!):
+
+command-line
+(myvenv) C:\Users\Name\djangogirls> django-admin.exe startproject mysite .
+O ponto . é crucial por que ele diz para o script instalar o Django no diretório atual (o ponto . é um atalho para referenciar este diretório).
+
+Observação: Quando digitar o comando acima, lembre-se de digitar apenas a parte que começa em django-admin.exe. A parte (myvenv) C:\Users\Name\djangogirls> apresentada aqui é apenas um exemplo do que pode aparecer no seu terminal quando você digitar seus comandos.
+
+django-admin é um script que criará os diretórios e arquivos para você.
+
+manage.py é um script que ajuda com a gestão do site. Com ele, podemos iniciar um servidor de web no nosso computador sem instalar nada, entre outras coisas.
+
+O arquivo settings.py contém a configuração do seu site.
+
+Lembra de quando falamos sobre um carteiro verificando onde entregar uma carta? O arquivo urls.py contém uma lista dos padrões usados por urlresolver.
+
+Vamos ignorar os outros arquivos por enquanto pois não vamos modificá-los. Só precisamos lembrar de não excluí-los por acidentalmente!
+===============
+
+Mudando as configurações
+
+Vamos fazer algumas alterações no mysite/settings.py. Abra o arquivo usando o editor de código que você instalou anteriormente.
+
+Em settings.py, localize a linha que contém TIME_ZONE e modifique para escolher seu próprio fuso horário:
+
+mysite/settings.py
+TIME_ZONE = 'America/Sao_Paulo'
+
+Se você quiser um idioma diferente do inglês, especifique o código de idioma alterando a seguinte linha:
+
+mysite/settings.py
+LANGUAGE_CODE = 'pt-BR'
+
+Também precisamos adicionar o caminho para os arquivos estáticos. (Discutiremos tudo sobre arquivos estáticos e CSS mais adiante no tutorial.) Vá até o final do arquivo e, logo abaixo da linha com STATIC_URL, adicione uma nova variável chamada STATIC_ROOT:
+
+mysite/settings.py
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+Quando DEBUG for True e ALLOWED_HOSTS estiver vazia, o domínio do site será validado como ['localhost', '127.0.0.1', '[::1]']. Isso não corresponderá ao nosso domínio no PythonAnywhere quando implantarmos a nossa aplicação, então vamos mudamos a seguinte configuração:
+
+mysite/settings.py
+ALLOWED_HOSTS = ['127.0.0.1', '.pythonanywhere.com']
+
+Configurando um banco de dados
+Existem vários software de banco de dados diferentes que podem armazenar dados para o seu site. Nós vamos usar o padrão do Django, o sqlite3.
+
+Para criar um banco de dados para o nosso blog, vamos executar o seguinte comando no console. Digite: python manage.py migrate (precisamos estar no diretório que contém o arquivo manage.py djangogirls).
+
+
+Iniciando o servidor web
+
+Você precisa estar no diretório que contém o arquivo manage.py (o diretório djangogirls). No console, nós podemos iniciar o servidor web executando o python manage.py runserver:
+
+command-line
+(myvenv) ~/djangogirls$ python manage.py runserver
+
+Se você estiver no Windows e o comando falhar com UnicodeDecodeError, use o comando alternativo:
+
+command-line
+(myvenv) ~/djangogirls$ python manage.py runserver 0:8000
+Agora você precisa checar se o o seu site está funcionando. Abra o seu navegador (Firefox, Chrome, Safari, Internet Explorer ou qualquer outro que você usa) e coloque esse endereço:
+
+browser
+http://127.0.0.1:8000/
+
+
+Modelos do Django
+Sabendo o que um objeto é, criamos um modelo no Django para a postagem do blog.
+
+Um modelo no Django é um tipo especial de objeto -- ele é salvo em um banco de dados. Um banco de dados é uma coleção de dados. Ele é um local em que você vai salvar dados sobre usuários, suas postagens, etc. Usaremos um banco de dados chamado SQLite para armazenar as nossas informações. Este é o banco de dados padrão do Django -- e ele será suficiente neste primeiro momento.
+
+Você pode pensar em um modelo de banco de dados como uma planilha com colunas (campos) e linhas (dados).
+
+Criando uma aplicação
+Para manter tudo arrumado, vamos criar uma aplicação separada dentro do nosso projeto. É muito bom ter tudo organizado desde o início. Para criar uma aplicação, precisamos executar o seguinte comando no prompt (a partir do diretório djangogirls onde está o arquivo manage.py):
+
+Windows:
+(myvenv) C:\Users\Name\djangogirls> python manage.py startapp blog
+
+Depois de criar uma aplicação, também precisamos dizer ao Django que ele deve usá-la. Fazemos isso no arquivo mysite/settings.py -- abra-o no seu editor de código. Precisamos encontrar o INSTALLED_APPS e adicionar uma linha com 'blog', logo acima do ]. O resultado final ficará assim:
+
+mysite/settings.py
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+]
+
+
+===============================
+
+Criando um modelo de postagem para o nosso blog
+No arquivo blog/models.py definimos todos os objetos chamados Modelos -- este é um lugar em que vamos definir nossa postagem do blog.
+
+Vamos abrir blog/models.py no editor de código, apagar tudo dele e escrever o seguinte código:
+
+blog/models.py
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
+class Post(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    text = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+    published_date = models.DateTimeField(blank=True, null=True)
+
+    def publish(self):
+        self.published_date = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return self.title
+Certifique-se de que usou dois caracteres de sublinhado (_) em cada lado de str. Esta convenção é utilizada frequentemente em Python e, muitas vezes, a chamamos de "dunder" (vem da expressão em inglês "double-underscore" - sublinhado duplo em português).
+
+Parece assustador, né? Mas não se preocupe, vamos explicar o que essas linhas significam!
+
+Todas as linhas começando com from ou import são linhas que adicionam pedaços de outros arquivos. Então ao invés de copiar e colar as mesmas coisas em cada arquivo, podemos incluir algumas partes com from... import ....
+
+class Post(models.Model): - esta linha define o nosso modelo (é um objeto).
+
+class é uma palavra-chave especial que indica que estamos definindo um objeto.
+Post é o nome do nosso modelo. Nós podemos dar um nome diferente (mas precisamos evitar caracteres especiais e espaços em branco). Sempre inicie o nome de uma classe com uma letra em maiúsculo.
+models.Model significa que o Post é um modelo de Django, então o Django sabe que ele deve ser salvo no banco de dados.
+Agora definiremos as propriedades comentadas acima: title, text, created_date, published_date e author. Para fazer isso, é necessário definir um tipo para cada campo (É um texto? Um número? Uma data? Uma relação com outro objeto, por exemplo, um usuário?)
+
+models.CharField - é assim que definimos um texto com um número limitado de caracteres.
+models.TextField - este campo é para textos sem um limite fixo. Parece ideal para o conteúdo de um blog, né?
+models.DateTimeField - este é uma data e hora.
+models.ForeignKey - este é um link para outro modelo.
+Nós não explicaremos cada pedaço de código aqui pois isso levaria muito tempo. Você deve dar uma olhada na documentação do Django se quiser saber mais sobre campos de modelos e como definir outras coisas além das descritas acima (https://docs.djangoproject.com/en/2.0/ref/models/fields/#field-types).
+
+E def publish(self):? Esse é justamente o método publish de que falamos anteriormente. def significa que se trata de uma função/método e que publish é seu nome. Você pode mudar o nome do método, se quiser. A regra para nomes é sempre usar letras minúsculas e no lugar dos espaços em branco, usar o caractere sublinhado (_). Por exemplo, um método que calcula o preço médio poderia se chamar calculate_average_price (do inglês, calcular_preco_medio).
+
+Métodos muitas vezes retornam (return) algo. Um exemplo disto é o método __str__. Neste caso, quando chamarmos __str__(), obteremos um texto (string) com o título do Post.
+
+Lembre-se também de que tanto def publish(self): quanto def __str__(self): são endentados para dentro da classe. E porque Python é sensível a espaços em branco, precisamos endentar todos os nossos métodos para dentro da classe. Caso contrário, os métodos não pertencerão à classe e você poderá obter um comportamento inesperado.
+
+Se algo ainda não está claro sobre modelos, sinta-se livre para perguntar para sua monitora! Sabemos que é complicado, especialmente porque você está aprendendo o que são objetos e funções ao mesmo tempo. Mas esperamos que isto se pareça um pouco menos com mágica agora!
+
+Criando tabelas para nossos modelos no banco de dados
+O último passo é adicionar nosso novo modelo ao banco de dados. Primeiramente, precisamos fazer com que o Django entenda que fizemos algumas alterações nos nossos modelos. (Acabamos de criar um modelo de Post!) Vá para o console e digite python manage.py makemigrations blog. Deve ficar assim:
+
+command-line
+(myvenv) ~/djangogirls$ python manage.py makemigrations blog
+Migrations for 'blog':
+  blog/migrations/0001_initial.py:
+
+  - Create model Post
+Observação: Lembre-se de salvar os arquivos que você editar. Caso contrário, o computador executará uma versão antiga que pode gerar mensagens de erro inesperadas.
+
+O Django preparou um arquivo de migração que precisamos aplicar ao nosso banco de dados. Digite python manage.py migrate blog e a saída deve ser:
+
+command-line
+(myvenv) ~/djangogirls$ python manage.py migrate blog
+Operations to perform:
+  Apply all migrations: blog
+Running migrations:
+  Applying blog.0001_initial... OK
+Uhuu! Nosso modelo Post já está no banco de dados! Seria legal vê-lo, né? Vá para o próximo capítulo para descobrir como nosso Post se parece!
+
+===================
+
+Django Admin
+Para adicionar, editar e deletar os posts que acabamos de modelar, nós usaremos o admin do Django.
+
+Vamos abrir o arquivo blog/admin.py no editor de código e substituir o conteúdo pelo seguinte:
+
+blog/admin.py
+from django.contrib import admin
+from .models import Post
+
+admin.site.register(Post)
+Como você pode ver, nós importamos (incluímos) o modelo Post definido no capítulo anterior. Para tornar nosso modelo visível na página de administração, precisamos registrá-lo com admin.site.register(Post).
+
+OK, hora de olhar para o nosso modelo de Post. Lembre-se de executar python manage.py runserver no console para iniciar o servidor web. Vá para o seu navegador e digite o endereço http://127.0.0.1:8000/admin/. Você verá uma página de login como essa:
